@@ -1,5 +1,6 @@
 package com.libreria.libreria.service;
 
+import com.libreria.libreria.entity.BookEntity;
 import com.libreria.libreria.entity.CustomerEntity;
 import com.libreria.libreria.exception.ExceptionService;
 import com.libreria.libreria.repository.CustomerRepository;
@@ -18,7 +19,7 @@ public class CustomerService {
     private CustomerRepository customerRepository;
 
     @Transactional
-    public void signUp(Long dni, String name, String lastName, String phoneNumber, Boolean isActive) throws ExceptionService {
+    public void signUp(Long dni, String name, String lastName, String phoneNumber) throws ExceptionService {
 
         validate(dni, name, lastName, phoneNumber);
 
@@ -27,14 +28,14 @@ public class CustomerService {
         customer.setName(name);
         customer.setLastName(lastName);
         customer.setPhoneNumber(phoneNumber);
+        customer.setIsActive(true);
 
         customerRepository.save(customer);
     }
 
     @Transactional
-    public void modify(Long id, Long dni, String name, String lastName, String phoneNumber) throws ExceptionService {
+    public void modify(Long id, String name, String lastName, String phoneNumber) throws ExceptionService {
 
-        validate(dni, name, lastName, phoneNumber);
 
         //Optional: puedo ver si como respuesta al ID me devuelve un usuario, entonces lo busco y modifico, sino me devuelve una excepcion
         Optional<CustomerEntity> response = customerRepository.findById(id);
@@ -44,6 +45,7 @@ public class CustomerService {
             customer.setName(name);
             customer.setLastName(lastName);
             customer.setPhoneNumber(phoneNumber);
+            customer.setIsActive(customer.getIsActive());
 
             customerRepository.save(customer);
         } else throw new ExceptionService("Customer does not exist.");
@@ -75,6 +77,14 @@ public class CustomerService {
 
     public List<CustomerEntity> show() {
          return customerRepository.findAll();
+    }
+
+    public void delete(Long id) throws ExceptionService {
+        customerRepository.deleteById(id);
+    }
+
+    public Optional<CustomerEntity> findById(Long id) throws ExceptionService {
+        return customerRepository.findById(id);
     }
 
     public void validate(Long dni, String name, String lastName, String phoneNumber) throws ExceptionService {
